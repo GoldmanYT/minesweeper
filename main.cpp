@@ -108,6 +108,38 @@ public:
             return;
         }
 
+        if (state_field[cy][cx] == opened)
+        {
+            int around_flag_count = 0;
+            for (int dy = -1; dy <= 1; dy++)
+            {
+                for (int dx = -1; dx <= 1; dx++)
+                {
+                    size_t x = cx + dx;
+                    size_t y = cy + dy;
+                    if (on_field(x, y) && (x != 0 || y != 0) && state_field[y][x] == with_flag)
+                    {
+                        around_flag_count++;
+                    }
+                }
+            }
+            if (around_flag_count == type_field[cy][cx])
+            {
+                for (int dy = -1; dy <= 1; dy++)
+                {
+                    for (int dx = -1; dx <= 1; dx++)
+                    {
+                        size_t x = cx + dx;
+                        size_t y = cy + dy;
+                        if (on_field(x, y) && (x != 0 || y != 0) && state_field[y][x] != with_flag)
+                        {
+                            state_field[y][x] = opened;
+                        }
+                    }
+                }
+            }
+        }
+
         state_field[cy][cx] = opened;
         short opened_node_type = type_field[cy][cx];
 
@@ -213,7 +245,7 @@ public:
 
     bool game_ended()
     {
-        if (game_state == lost)
+        if (game_state != run)
         {
             return true;
         }
@@ -233,9 +265,14 @@ public:
         return true;
     }
 
-    bool get_game_state()
+    bool get_is_won()
     {
-        return game_state;
+        return game_state == won;
+    }
+
+    bool get_is_lost()
+    {
+        return game_state == lost;
     }
 };
 
@@ -263,16 +300,13 @@ int main()
         }
     }
     game.print();
-    int game_state = game.get_game_state();
-    switch (game_state)
+    if (game.get_is_won())
     {
-    case 1:
         cout << "You won!";
-        break;
-    
-    default:
+    }
+    else
+    {
         cout << "You lost!";
-        break;
     }
     return 0;
 }
